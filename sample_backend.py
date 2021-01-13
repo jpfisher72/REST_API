@@ -1,21 +1,30 @@
 from flask import Flask
 from flask import request
+from flask import jsonify
 app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
 	return 'Hello, world!'
 
-@app.route('/users')
+@app.route('/users', methods=['GET', 'POST'])
 def get_users():
-   search_username = request.args.get('name') # accessing the value of parameter 'name' given in HTTP request
-   if search_username:
-      subdict = {'users_list' : []}
-      for user in users['users_list']:
-         if user['name'] == search_username:
-            subdict['users_list'].append(user)
-      return subdict
-   return users
+    if request.method == 'GET':
+        search_username = request.args.get('name') # accessing the value of parameter 'name' given in HTTP request
+        if search_username:
+            subdict = {'users_list' : []}
+            for user in users['users_list']:
+                if user['name'] == search_username:
+                    subdict['users_list'].append(user)
+            return subdict
+        return users
+    elif request.method == 'POST':
+        userToAdd = request.get_json()
+        users['users_list'].append(userToAdd)
+        resp = jsonify(success=True)
+        #resp.status_code = 200 #optionally, you can always set a response code. 
+        # 200 is the default code for a normal response
+        return resp
 
 @app.route('/users/<id>') #flask allows the use of <> to wrap a variable that is part of the URL
 def get_user(id): #Here we are using id as parameter because we wrap <id> as a variable that comes from the HTTP request
