@@ -50,7 +50,7 @@ def get_user(id): #Here we are using id as parameter because we wrap <id> as a v
                     users['users_list'].remove(user) #Remove user from list
                     resp = jsonify(success=True)
                     return resp
-            #Not sure if this is proper API etiquette to return success=false when attempting to delete a use that doesn't exist
+            #Not sure if this is proper API etiquette to return success=false when attempting to delete a user that doesn't exist
             resp = jsonify(success=False)
             return resp
 
