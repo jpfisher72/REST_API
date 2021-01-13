@@ -7,7 +7,7 @@ app = Flask(__name__)
 def hello_world():
 	return 'Hello, world!'
 
-@app.route('/users', methods=['GET', 'POST'])
+@app.route('/users', methods=['GET', 'POST', 'DELETE'])
 def get_users():
     if request.method == 'GET':
         search_username = request.args.get('name') # accessing the value of parameter 'name' given in HTTP request
@@ -26,14 +26,25 @@ def get_users():
         # 200 is the default code for a normal response
         return resp
 
-@app.route('/users/<id>') #flask allows the use of <> to wrap a variable that is part of the URL
+@app.route('/users/<id>', methods=['GET', 'DELETE']) #flask allows the use of <> to wrap a variable that is part of the URL
 def get_user(id): #Here we are using id as parameter because we wrap <id> as a variable that comes from the HTTP request
-   if id:
-      for user in users['users_list']:
-        if user['id'] == id:
-           return user
-      return ({})
-   return users
+    if request.method == 'GET': #Unless specified otherwise, HTTP requests are GET by default
+        if id:
+            for user in users['users_list']:
+                if user['id'] == id:
+                    return user
+            return ({})
+        return users
+    elif request.method == 'DELETE':
+        if id:
+            for user in users['users_list']:
+                if user['id'] == id:
+                    users['users_list'].remove(user) #Remove user from list
+                    resp = jsonify(success=True)
+                    return resp
+            #Not sure if this is proper API etiquette to return success=false when attempting to delete a use that doesn't exist
+            resp = jsonify(success=False)
+            return resp
 
 users = { 
    'users_list' :
