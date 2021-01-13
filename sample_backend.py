@@ -7,15 +7,23 @@ app = Flask(__name__)
 def hello_world():
 	return 'Hello, world!'
 
-@app.route('/users', methods=['GET', 'POST', 'DELETE'])
+@app.route('/users', methods=['GET', 'POST'])
 def get_users():
     if request.method == 'GET':
-        search_username = request.args.get('name') # accessing the value of parameter 'name' given in HTTP request
-        if search_username:
+        search_name = request.args.get('name')
+        search_job = request.args.get('job')
+        if search_name or search_job:
             subdict = {'users_list' : []}
             for user in users['users_list']:
-                if user['name'] == search_username:
-                    subdict['users_list'].append(user)
+                if search_name and (not search_job): #If searching by name only
+                    if user['name'] == search_name:
+                        subdict['users_list'].append(user)
+                if (not search_name) and search_job: #If searching by job only
+                    if user['job'] == search_job:
+                        subdict['users_list'].append(user)
+                if search_name and search_job: #If searching by name and job
+                    if (user['name'] == search_name) and (user['job'] == search_job):
+                        subdict['users_list'].append(user)
             return subdict
         return users
     elif request.method == 'POST':
