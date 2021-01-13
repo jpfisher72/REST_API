@@ -17,6 +17,15 @@ def get_users():
       return subdict
    return users
 
+@app.route('/users/<id>') #flask allows the use of <> to wrap a variable that is part of the URL
+def get_user(id): #Here we are using id as parameter because we wrap <id> as a variable that comes from the HTTP request
+   if id:
+      for user in users['users_list']:
+        if user['id'] == id:
+           return user
+      return ({})
+   return users
+
 users = { 
    'users_list' :
    [
