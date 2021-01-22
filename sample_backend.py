@@ -2,6 +2,8 @@ from flask import Flask
 from flask import request
 from flask import jsonify
 from flask_cors import CORS
+import random
+import string
 app = Flask(__name__)
 CORS(app)
 
@@ -30,11 +32,15 @@ def get_users():
         return users
     elif request.method == 'POST':
         userToAdd = request.get_json()
+        # Here we're adding a (hopefully) unique ID to the userToAdd dict entry
+        userToAdd.update({'id': randID()}) #userToAdd is now complete with random ID and ready to be added to users list and returned to frontend
         users['users_list'].append(userToAdd)
-        resp = jsonify(success=True)
+        # resp = jsonify(success=True)
+        # resp.status_code = 201
         #resp.status_code = 200 #optionally, you can always set a response code. 
         # 200 is the default code for a normal response
-        return resp
+        #return resp
+        return userToAdd, 201
 
 @app.route('/users/<id>', methods=['GET', 'DELETE']) #flask allows the use of <> to wrap a variable that is part of the URL
 def get_user(id): #Here we are using id as parameter because we wrap <id> as a variable that comes from the HTTP request
@@ -50,11 +56,17 @@ def get_user(id): #Here we are using id as parameter because we wrap <id> as a v
             for user in users['users_list']:
                 if user['id'] == id:
                     users['users_list'].remove(user) #Remove user from list
-                    resp = jsonify(success=True)
-                    return resp
-            #Not sure if this is proper API etiquette to return success=false when attempting to delete a user that doesn't exist
-            resp = jsonify(success=False)
-            return resp
+                    return jsonify(success=True), 204
+            return jsonify(success=False), 404
+        return users
+
+def randID():
+    id = ""
+    for i in range(0,3):
+        id += random.choice(string.ascii_lowercase)
+    for i in range(0,3):
+        id += str(random.randint(0,9))
+    return id
 
 users = { 
    'users_list' :
